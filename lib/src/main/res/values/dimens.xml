@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="rolling_digit_aspect_ratio" format="float" type="dimen">1.0</item>
+</resources>

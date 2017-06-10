@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.ng.roll.RollingCounterView
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/rolling_counter_view"
+        />
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/rolling_counter_view"
+        android:layout_centerHorizontal="true"
+        >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <EditText
+                android:id="@+id/roll_sample_activity_custom_value_edit_text"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:hint="custom value"
+                />
+
+            <Button
+                android:id="@+id/roll_sample_activity_custom_value_button_set"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="set value"
+                />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/roll_sample_activity_random_value_button_set"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="set random value"
+            />
+
+        <Button
+            android:id="@+id/roll_sample_activity_auto_roll_button_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="auto roll forward"
+            />
+
+        <Button
+            android:id="@+id/roll_sample_activity_auto_roll_button_backward"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="auto roll backward"
+            />
+
+        <Button
+            android:id="@+id/roll_sample_activity_auto_roll_button_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="stop auto roll"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>
