@@ -76,8 +76,11 @@ public class DigitFrame {
     }
 
     private static float slowRiseFunction(float x) {
-        float y = x * 7 - 6;
-        return Math.min(Math.max(y, 0), 1);
+        float y = x - 0.6f;
+        if (x == 1) {
+            return 1;
+        }
+        return Math.max(y, 0);
     }
 
     private static int roundRobin(int value, int by, int around) {
