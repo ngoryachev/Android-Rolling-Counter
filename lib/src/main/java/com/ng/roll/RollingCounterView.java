@@ -181,7 +181,7 @@ public class RollingCounterView extends View {
         }
 
         void setDigitsBoundsByCounterValue(double value) {
-            float fraction = (float) (value % 1);
+            float fraction = slowRiseFunction((float) (value % 1));
             int wholePart = (int) (value % 10);
 
             //center digit
@@ -243,6 +243,11 @@ public class RollingCounterView extends View {
             digits[4].mBounds.offset(0, (int) ( 2 * digitSide ));
         }
 
+        private static float slowRiseFunction(float x) {
+            float y = x * 7 - 6;
+            return Math.min(Math.max(y, 0), 1);
+        }
+
         private static int roundRobin(int value, int by, int around) {
             return (value + by + around) % around;
         }
@@ -302,11 +307,6 @@ public class RollingCounterView extends View {
 
             return new PointF(x, y);
         }
-
-//        private float slowRiseFunction(float x) {
-//            float y = x * 7 - 6;
-//            return Math.min(Math.max(y, 0), 1);
-//        }
 
         private void drawIntTextAtPoint(Canvas canvas, int intToDraw, float x, float y) {
             canvas.drawText(Integer.toString(intToDraw), x, y + (int) (mDigitPaint.getTextSize() * 0.35f), mDigitPaint);
