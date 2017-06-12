@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="rolling_digit_aspect_ratio" format="float" type="dimen">1.0</item>
+    <item name="rolling_digit_aspect_ratio" format="float" type="dimen">0.6</item>
     <dimen name="rolling_counter_frame_width">2px</dimen>
     <dimen name="rolling_side_frame_width">2px</dimen>
 </resources>

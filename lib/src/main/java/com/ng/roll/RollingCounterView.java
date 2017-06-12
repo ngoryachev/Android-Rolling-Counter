@@ -1,5 +1,6 @@
 package com.ng.roll;
 
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -27,7 +28,7 @@ class RollingCounterView extends View {
 
     private ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
         public void onAnimationUpdate(ValueAnimator animation) {
-            float value = (Float) animation.getAnimatedValue();
+            double value = (Double) animation.getAnimatedValue();
             setValueInternal(value);
         }
     };
@@ -70,7 +71,7 @@ class RollingCounterView extends View {
     }
 
     public void changeCounterBy(int value, boolean animate) {
-        setCounterValue((int) (mValue + value), animate);
+        setCounterValue(mValue + value, animate);
     }
 
     public int getDigitCount() {
@@ -79,7 +80,7 @@ class RollingCounterView extends View {
 
     private void setValueInternal(double value) {
         mValue = value;
-        int digitsCount = getDigitsCount((int) value);
+        long digitsCount = getDigitsCount((long) value);
         for (int i = mDigitFrames.length - 1; i >= 0; i--) {
             if (digitsCount > 0) {
                 mDigitFrames[i].setValue(value);
@@ -92,20 +93,26 @@ class RollingCounterView extends View {
         invalidate();
     }
 
-    private static int getDigitsCount(int number) {
+    private static long getDigitsCount(long number) {
         if (number == 0) {
             return 1;
         }
 
-        return (int) (Math.log10(number) + 1);
+        return (long) (Math.log10(number) + 1);
     }
 
     private void startRollingAnimation(double value) {
-        mRollingAnimator = ValueAnimator.ofFloat((float) mValue, (float) value);
+        mRollingAnimator = new ValueAnimator();
+        mRollingAnimator.setObjectValues(mValue, value);
         mRollingAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mRollingAnimator.setDuration(ANIMATION_DURATION);
         mRollingAnimator.addUpdateListener(mAnimatorUpdateListener);
-
+        mRollingAnimator.setEvaluator(new TypeEvaluator<Double>() {
+            @Override
+            public Double evaluate(float fraction, Double startValue, Double endValue) {
+                return (startValue + (endValue - startValue) * fraction);
+            }
+        });
         mRollingAnimator.start();
     }
 
