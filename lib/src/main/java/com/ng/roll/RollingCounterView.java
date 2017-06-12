@@ -25,10 +25,10 @@ public class RollingCounterView extends View {
 
     public RollingCounterView(Context context) {
         super(context);
-        sharedConstructor(context);
+        sharedConstructor();
     }
 
-    private void sharedConstructor(Context context) {
+    private void sharedConstructor() {
         TypedValue outValue = new TypedValue();
         getResources().getValue(R.dimen.rolling_digit_aspect_ratio, outValue, true);
         digitAspectRatio = outValue.getFloat();
@@ -36,12 +36,12 @@ public class RollingCounterView extends View {
 
     public RollingCounterView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        sharedConstructor(context);
+        sharedConstructor();
     }
 
     public RollingCounterView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        sharedConstructor(context);
+        sharedConstructor();
     }
 
     public void setCounterValue(int value, boolean animate) {
@@ -168,7 +168,7 @@ public class RollingCounterView extends View {
         private static float RATIO = 0.5f;
 
         DigitFrame() {
-            mFramePaint.setColor(Color.GRAY);
+            mFramePaint.setColor(Color.BLACK);
             mFramePaint.setAntiAlias(true);
             for (int i = 0; i < digits.length; i++) {
                 digits[i] = new Digit();
@@ -184,44 +184,15 @@ public class RollingCounterView extends View {
             float fraction = slowRiseFunction((float) (value % 1));
             int wholePart = (int) (value % 10);
 
-            //center digit
             float frameHeight = mBounds.height();
             float digitSide = frameHeight * RATIO;
             float mainDigitLeft = mBounds.left + (mBounds.width() - digitSide) / 2;
-//            float mainDigitTop = mBounds.top + (-1 * frameHeight * fraction) + (digitSide * 0.5f);
-
-//            const frameHeight = 1;
-//            const digitHeight = 0.5;
-//            const fraction = +process.argv[2];
-//            const frameCenter = frameHeight * 0.5;
-//            const distFromFrameCenter = digitHeight * fraction;
-//            const y1 = frameCenter + distFromFrameCenter - (digitHeight * 0.5);
-//            const y2 = y1 + digitHeight;
 
             float digitHeight = digitSide;
             float frameCenter = frameHeight * 0.5f;
             float distFromFrameCenter = digitHeight * fraction * -1;
             float y1 = frameCenter + distFromFrameCenter - (digitHeight * 0.5f);
             float y2 = y1 + digitHeight;
-
-//            digits[0].value = roundRobin(wholePart, -2, 10);
-//            digits[0].setBounds(digits[2].mBounds);
-//            digits[0].mBounds.offset(0, (int) ( -2 * digitSide ));
-//
-//            digits[1].value = roundRobin(wholePart, -1, 10);
-//            digits[1].setBounds(digits[2].mBounds);
-//            digits[1].mBounds.offset(0, (int) -digitSide);
-//
-//            digits[2].value = wholePart;
-//            digits[2].setBounds((int) mainDigitLeft, (int) mainDigitTop, (int) (mainDigitLeft + digitSide), (int) (mainDigitTop + digitSide));
-//
-//            digits[3].value = roundRobin(wholePart, 1, 10);
-//            digits[3].setBounds(digits[2].mBounds);
-//            digits[3].mBounds.offset(0, (int) digitSide);
-//
-//            digits[4].value = roundRobin(wholePart, 2, 10);
-//            digits[4].setBounds(digits[2].mBounds);
-//            digits[4].mBounds.offset(0, (int) ( 2 * digitSide ));
 
             digits[2].value = wholePart;
             digits[2].setBounds((int) mainDigitLeft, (int) y1, (int) (mainDigitLeft + digitSide), (int) y2);
