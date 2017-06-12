@@ -35,7 +35,7 @@ public class RollSampleActivity extends FragmentActivity {
                 try{
                     stopAutoRoll();
                     int val = Integer.parseInt(value);
-                    rollingCounterView.setCounterValue(val, false);
+                    rollingCounterView.setCounterValue(val, true);
                 } catch (Exception e) {
                     Toast.makeText(RollSampleActivity.this, "Bad input", Toast.LENGTH_SHORT).show();
                 }
@@ -46,7 +46,7 @@ public class RollSampleActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 stopAutoRoll();
-                rollingCounterView.setCounterValue(random.nextInt((int) Math.pow(10, rollingCounterView.getDigitCount())), false);
+                rollingCounterView.setCounterValue(random.nextInt((int) Math.pow(10, rollingCounterView.getDigitCount())), true);
             }
         });
 
@@ -77,7 +77,7 @@ public class RollSampleActivity extends FragmentActivity {
     private Runnable autoRoll = new Runnable() {
         @Override
         public void run() {
-            rollingCounterView.changeCounterBy(autoRollDirection ? +1 : -1);
+            rollingCounterView.changeCounterBy(autoRollDirection ? +1 : -1, true);
             startAutoRoll(autoRollDirection);
         }
     };
@@ -88,7 +88,7 @@ public class RollSampleActivity extends FragmentActivity {
 
     private void startAutoRoll(boolean forward) {
         autoRollDirection = forward;
-        rollingCounterView.postDelayed(autoRoll, 100);
+        rollingCounterView.postDelayed(autoRoll, 1000);
     }
 
 }

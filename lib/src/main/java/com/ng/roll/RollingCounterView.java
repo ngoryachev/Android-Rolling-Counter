@@ -10,16 +10,16 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.ng.roll.library.R;
 
 public class RollingCounterView extends View {
 
-    private static final long ANIMATION_DURATION = 1000L;
+    private static final long ANIMATION_DURATION = 500L;
     Rect mBounds = new Rect();
     DigitFrame[] mDigitFrames = {};
     float digitAspectRatio;
-    float desiredCounterValue = 0;
     float currentCounterValue = 0;
     ValueAnimator mRollingAnimator = null;
 
@@ -44,18 +44,20 @@ public class RollingCounterView extends View {
         sharedConstructor();
     }
 
-    public void setCounterValue(int value, boolean animate) {
-        desiredCounterValue = value;
+    public void setCounterValue(float value, boolean animate) {
+        boolean isAnimationRunning = mRollingAnimator != null && mRollingAnimator.isRunning();
+        if (isAnimationRunning) {
+            mRollingAnimator.cancel();
+        }
         if (animate) {
-//            startRollingAnimation();
+            startRollingAnimation(value);
         } else {
             setCounterValueInternal(value);
-            desiredCounterValue = value;
         }
     }
 
-    public void changeCounterBy(int value) {
-        setCounterValue((int) (currentCounterValue + value), false);
+    public void changeCounterBy(int value, boolean animate) {
+        setCounterValue((int) (currentCounterValue + value), animate);
     }
 
     public int getDigitCount() {
@@ -92,28 +94,14 @@ public class RollingCounterView extends View {
         return (int)(Math.log10(number)+1);
     }
 
-//    private Animator.AnimatorListener animationListener = new AnimatorListenerAdapter() {
-//        @Override
-//        public void onAnimationStart(Animator animation) {
-//
-//        }
-//
-//        @Override
-//        public void onAnimationEnd(Animator animation) {
-//            if (Math.abs(desiredCounterValue - currentCounterValue) > 0.05) {
-//                startRollingAnimation();
-//            }
-//        }
-//    };
+    private void startRollingAnimation(float value) {
+        mRollingAnimator = ValueAnimator.ofFloat(currentCounterValue, value);
+        mRollingAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mRollingAnimator.setDuration(ANIMATION_DURATION);
+        mRollingAnimator.addUpdateListener(updateListener);
 
-//    private void startRollingAnimation() {
-//        mRollingAnimator = ValueAnimator.ofFloat(currentCounterValue, desiredCounterValue);
-//        mRollingAnimator.setDuration(ANIMATION_DURATION);
-//        mRollingAnimator.addUpdateListener(updateListener);
-//        mRollingAnimator.addListener(animationListener);
-//
-//        mRollingAnimator.start();
-//    }
+        mRollingAnimator.start();
+    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
