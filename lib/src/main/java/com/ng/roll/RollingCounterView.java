@@ -1,10 +1,7 @@
 package com.ng.roll;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -20,7 +17,7 @@ public class RollingCounterView extends View {
 
     private static final long ANIMATION_DURATION = 1000L;
     Rect mBounds = new Rect();
-    RollingDigit[] mRollingDigits = {};
+    DigitFrame[] mDigitFrames = {};
     float digitAspectRatio;
     float desiredCounterValue = 0;
     float currentCounterValue = 0;
@@ -62,7 +59,7 @@ public class RollingCounterView extends View {
     }
 
     public int getDigitCount() {
-        return mRollingDigits != null ? mRollingDigits.length : 0;
+        return mDigitFrames != null ? mDigitFrames.length : 0;
     }
 
     private ValueAnimator.AnimatorUpdateListener updateListener = new ValueAnimator.AnimatorUpdateListener() {
@@ -75,13 +72,13 @@ public class RollingCounterView extends View {
     private void setCounterValueInternal(float value) {
         currentCounterValue = value;
         int digitsCount = getDigitsCount((int) value);
-        for (int i=mRollingDigits.length-1; i >= 0; i--) {
+        for (int i= mDigitFrames.length-1; i >= 0; i--) {
             if (digitsCount > 0) {
-                mRollingDigits[i].setCounterValue(value);
+                mDigitFrames[i].setCounterValue(value);
                 value = value / 10;
                 digitsCount--;
             } else {
-                mRollingDigits[i].setCounterValue(0);
+                mDigitFrames[i].setCounterValue(0);
             }
         }
         invalidate();
@@ -130,11 +127,11 @@ public class RollingCounterView extends View {
 
         float digitWidth = getDigitWidthByHeight(mBounds.height(), digitAspectRatio);
         int digitCount = (int) (mBounds.width() / digitWidth);
-        mRollingDigits = new RollingDigit[digitCount];
+        mDigitFrames = new DigitFrame[digitCount];
 
         for (int i = 0; i < digitCount; i++) {
-            mRollingDigits[i] = new RollingDigit(getResources());
-            mRollingDigits[i].setBounds(computeNthDigitBounds(mBounds, digitBounds, digitWidth, i));
+            mDigitFrames[i] = new DigitFrame();
+            mDigitFrames[i].setBounds(computeNthDigitBounds(mBounds, digitBounds, digitWidth, i));
         }
 
         invalidate();
@@ -156,73 +153,163 @@ public class RollingCounterView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        for (int i = 0; i < mRollingDigits.length; i++) {
-            RollingDigit digit = mRollingDigits[i];
+        for (int i = 0; i < mDigitFrames.length; i++) {
+            DigitFrame digit = mDigitFrames[i];
             digit.onDraw(canvas);
         }
     }
 
-    private static class RollingDigit {
+    private static class DigitFrame {
 
         Rect mBounds = new Rect();
         Paint mFramePaint = new Paint();
-        Paint mDigitPaint = new Paint();
-
+        Digit[] digits = new Digit[5];
         double currentCounterValue = 0.0;
+        private static float RATIO = 0.5f;
 
-        RollingDigit(Resources resources) {
+        DigitFrame() {
             mFramePaint.setColor(Color.GRAY);
             mFramePaint.setAntiAlias(true);
-
-            mDigitPaint.setColor(Color.WHITE);
-            mDigitPaint.setTextAlign(Paint.Align.CENTER);
-            mFramePaint.setAntiAlias(true);
+            for (int i = 0; i < digits.length; i++) {
+                digits[i] = new Digit();
+            }
         }
 
         public void setBounds(Rect bounds) {
             mBounds.set(bounds);
-            mDigitPaint.setTextSize(bounds.height() * 0.8f);
+            setDigitsBoundsByCounterValue(currentCounterValue);
+        }
+
+        void setDigitsBoundsByCounterValue(double value) {
+            float fraction = (float) (value % 1);
+            int wholePart = (int) (value % 10);
+
+            //center digit
+            float frameHeight = mBounds.height();
+            float digitSide = frameHeight * RATIO;
+            float mainDigitLeft = mBounds.left + (mBounds.width() - digitSide) / 2;
+//            float mainDigitTop = mBounds.top + (-1 * frameHeight * fraction) + (digitSide * 0.5f);
+
+//            const frameHeight = 1;
+//            const digitHeight = 0.5;
+//            const fraction = +process.argv[2];
+//            const frameCenter = frameHeight * 0.5;
+//            const distFromFrameCenter = digitHeight * fraction;
+//            const y1 = frameCenter + distFromFrameCenter - (digitHeight * 0.5);
+//            const y2 = y1 + digitHeight;
+
+            float digitHeight = digitSide;
+            float frameCenter = frameHeight * 0.5f;
+            float distFromFrameCenter = digitHeight * fraction * -1;
+            float y1 = frameCenter + distFromFrameCenter - (digitHeight * 0.5f);
+            float y2 = y1 + digitHeight;
+
+//            digits[0].value = roundRobin(wholePart, -2, 10);
+//            digits[0].setBounds(digits[2].mBounds);
+//            digits[0].mBounds.offset(0, (int) ( -2 * digitSide ));
+//
+//            digits[1].value = roundRobin(wholePart, -1, 10);
+//            digits[1].setBounds(digits[2].mBounds);
+//            digits[1].mBounds.offset(0, (int) -digitSide);
+//
+//            digits[2].value = wholePart;
+//            digits[2].setBounds((int) mainDigitLeft, (int) mainDigitTop, (int) (mainDigitLeft + digitSide), (int) (mainDigitTop + digitSide));
+//
+//            digits[3].value = roundRobin(wholePart, 1, 10);
+//            digits[3].setBounds(digits[2].mBounds);
+//            digits[3].mBounds.offset(0, (int) digitSide);
+//
+//            digits[4].value = roundRobin(wholePart, 2, 10);
+//            digits[4].setBounds(digits[2].mBounds);
+//            digits[4].mBounds.offset(0, (int) ( 2 * digitSide ));
+
+            digits[2].value = wholePart;
+            digits[2].setBounds((int) mainDigitLeft, (int) y1, (int) (mainDigitLeft + digitSide), (int) y2);
+
+            digits[0].value = roundRobin(wholePart, -2, 10);
+            digits[0].setBounds(digits[2].mBounds);
+            digits[0].mBounds.offset(0, (int) (-2 * digitSide));
+
+            digits[1].value = roundRobin(wholePart, -1, 10);
+            digits[1].setBounds(digits[2].mBounds);
+            digits[1].mBounds.offset(0, (int) -digitSide);
+
+            digits[3].value = roundRobin(wholePart, 1, 10);
+            digits[3].setBounds(digits[2].mBounds);
+            digits[3].mBounds.offset(0, (int) digitSide);
+
+            digits[4].value = roundRobin(wholePart, 2, 10);
+            digits[4].setBounds(digits[2].mBounds);
+            digits[4].mBounds.offset(0, (int) ( 2 * digitSide ));
+        }
+
+        private static int roundRobin(int value, int by, int around) {
+            return (value + by + around) % around;
         }
 
         public void setCounterValue(double value) {
             currentCounterValue = value;
+            setDigitsBoundsByCounterValue(value);
         }
 
         public void onDraw(Canvas canvas) {
             drawBackground(canvas);
-            drawDigit(canvas);
+            drawDigits(canvas);
         }
 
-        private void drawDigit(Canvas canvas) {
-            PointF center = getRectCenter(mBounds);
-            float fraction = (float) (currentCounterValue % 1);
-            fraction = slowRiseFunction(fraction);
-            int wholePart = (int) (currentCounterValue % 10);
-            float offsetTop = fraction * mBounds.height();
-            float offsetBottom = (1 - fraction) * mBounds.height();
-            drawIntTextAtPoint(canvas, wholePart, center.x, center.y - offsetTop);
-            drawIntTextAtPoint(canvas, (wholePart + 1) % 10, center.x, center.y + offsetBottom);
-        }
-
-        private float slowRiseFunction(float x) {
-            float y = x * 7 - 6;
-            return Math.min(Math.max(y, 0), 1);
-        }
-
-        private void drawIntTextAtPoint(Canvas canvas, int intToDraw, float x, float y) {
-            canvas.drawText(Integer.toString(intToDraw), x, y + (int)(mDigitPaint.getTextSize() * 0.35f), mDigitPaint);
+        private void drawDigits(Canvas canvas) {
+            for (int i = 0; i < digits.length; i++) {
+                digits[i].onDraw(canvas);
+            }
         }
 
         private void drawBackground(Canvas canvas) {
             canvas.drawRect(mBounds, mFramePaint);
         }
 
-        //TODO avoid allocations
+    }
+
+    private static class Digit {
+
+        Rect mBounds = new Rect();
+        Paint mDigitPaint = new Paint();
+        int value;
+
+        public Digit() {
+            mDigitPaint.setColor(Color.WHITE);
+            mDigitPaint.setTextAlign(Paint.Align.CENTER);
+            mDigitPaint.setAntiAlias(true);
+        }
+
+        public void setBounds(Rect bounds) {
+            mBounds.set(bounds);
+            mDigitPaint.setTextSize(mBounds.height());
+        }
+
+        public void setBounds(int left, int top, int right, int bottom) {
+            mBounds.set(left, top, right, bottom);
+            mDigitPaint.setTextSize(mBounds.height());
+        }
+
+        public void onDraw(Canvas canvas) {
+            PointF center = getRectCenter(mBounds);
+            drawIntTextAtPoint(canvas, value, center.x, center.y);
+        }
+
         private static PointF getRectCenter(Rect rect) {
             float x = (rect.left + ((rect.right - rect.left) * 0.5f));
             float y = (rect.top + ((rect.bottom - rect.top) * 0.5f));
 
             return new PointF(x, y);
+        }
+
+//        private float slowRiseFunction(float x) {
+//            float y = x * 7 - 6;
+//            return Math.min(Math.max(y, 0), 1);
+//        }
+
+        private void drawIntTextAtPoint(Canvas canvas, int intToDraw, float x, float y) {
+            canvas.drawText(Integer.toString(intToDraw), x, y + (int) (mDigitPaint.getTextSize() * 0.35f), mDigitPaint);
         }
 
     }
