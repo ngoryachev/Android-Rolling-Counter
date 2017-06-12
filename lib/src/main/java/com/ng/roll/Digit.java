@@ -43,6 +43,10 @@ public class Digit {
         mValue = value;
     }
 
+    public int getValue() {
+        return mValue;
+    }
+
     public void onDraw(Canvas canvas) {
         PointF center = getRectCenter(mBounds);
         drawIntTextAtPoint(canvas, mValue, center.x, center.y);

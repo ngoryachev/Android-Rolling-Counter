@@ -17,10 +17,12 @@ public class DigitFrame {
     private final Digit[] mDigits = new Digit[5];
     private double mValue = 0.0;
     private final int mSideFrameWidth;
+    private final int mColorBlack;
 
     public DigitFrame(Resources resources) {
         mSideFrameWidth = resources.getDimensionPixelOffset(R.dimen.rolling_side_frame_width);
-        mFramePaint.setColor(Color.BLACK);
+        mColorBlack = resources.getColor(R.color.rolling_frame_bg_color);
+        mFramePaint.setColor(mColorBlack);
         mFramePaint.setAntiAlias(true);
         for (int i = 0; i < mDigits.length; i++) {
             mDigits[i] = new Digit();
@@ -55,24 +57,22 @@ public class DigitFrame {
         float y1 = frameCenter + distFromFrameCenter - (digitSide * 0.5f);
         float y2 = y1 + digitSide;
 
-        mDigits[2].setValue(wholePart);
-        mDigits[2].setBounds((int) x1, (int) y1, (int) x2, (int) y2);
+        final int mainDigitIndex = 2;
+        mDigits[mainDigitIndex].setValue(wholePart);
+        mDigits[mainDigitIndex].setBounds((int) x1, (int) y1, (int) x2, (int) y2);
 
-        mDigits[0].setValue(roundRobin(wholePart, -2, 10));
-        mDigits[0].setBounds(mDigits[2].getBounds());
-        mDigits[0].offset(0, (int) (-2 * digitSide));
+        setValueBoundsAndOffsetOfNeighborDigit(mDigits, mainDigitIndex, -2, (int) digitSide);
+        setValueBoundsAndOffsetOfNeighborDigit(mDigits, mainDigitIndex, -1, (int) digitSide);
+        setValueBoundsAndOffsetOfNeighborDigit(mDigits, mainDigitIndex, 1, (int) digitSide);
+        setValueBoundsAndOffsetOfNeighborDigit(mDigits, mainDigitIndex, 2, (int) digitSide);
+    }
 
-        mDigits[1].setValue(roundRobin(wholePart, -1, 10));
-        mDigits[1].setBounds(mDigits[2].getBounds());
-        mDigits[1].offset(0, (int) -digitSide);
-
-        mDigits[3].setValue(roundRobin(wholePart, 1, 10));
-        mDigits[3].setBounds(mDigits[2].getBounds());
-        mDigits[3].offset(0, (int) digitSide);
-
-        mDigits[4].setValue(roundRobin(wholePart, 2, 10));
-        mDigits[4].setBounds(mDigits[2].getBounds());
-        mDigits[4].offset(0, (int) (2 * digitSide));
+    private static void setValueBoundsAndOffsetOfNeighborDigit(Digit[] digits, int mainDigitIndex, int offset, int digitSide) {
+        Digit mainDigit = digits[mainDigitIndex];
+        int digitIndex = mainDigitIndex + offset;
+        digits[digitIndex].setValue(roundRobin(mainDigit.getValue(), offset, 10));
+        digits[digitIndex].setBounds(mainDigit.getBounds());
+        digits[digitIndex].offset(0, offset * digitSide);
     }
 
     private static float slowRiseFunction(float x) {
@@ -93,7 +93,7 @@ public class DigitFrame {
     private void drawBackground(Canvas canvas) {
         mFramePaint.setColor(Color.GRAY);
         canvas.drawRect(mBounds, mFramePaint);
-        mFramePaint.setColor(Color.BLACK);
+        mFramePaint.setColor(mColorBlack);
         canvas.drawRect(mBounds.left + mSideFrameWidth , mBounds.top, mBounds.right - mSideFrameWidth, mBounds.bottom, mFramePaint);
     }
 
