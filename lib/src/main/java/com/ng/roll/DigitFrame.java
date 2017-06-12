@@ -1,9 +1,12 @@
 package com.ng.roll;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+
+import com.ng.roll.library.R;
 
 public class DigitFrame {
 
@@ -13,8 +16,10 @@ public class DigitFrame {
     private final Paint mFramePaint = new Paint();
     private final Digit[] mDigits = new Digit[5];
     private double mValue = 0.0;
+    private final int mSideFrameWidth;
 
-    public DigitFrame() {
+    public DigitFrame(Resources resources) {
+        mSideFrameWidth = resources.getDimensionPixelOffset(R.dimen.rolling_side_frame_width);
         mFramePaint.setColor(Color.BLACK);
         mFramePaint.setAntiAlias(true);
         for (int i = 0; i < mDigits.length; i++) {
@@ -86,7 +91,10 @@ public class DigitFrame {
     }
 
     private void drawBackground(Canvas canvas) {
+        mFramePaint.setColor(Color.GRAY);
         canvas.drawRect(mBounds, mFramePaint);
+        mFramePaint.setColor(Color.BLACK);
+        canvas.drawRect(mBounds.left + mSideFrameWidth , mBounds.top, mBounds.right - mSideFrameWidth, mBounds.bottom, mFramePaint);
     }
 
 }

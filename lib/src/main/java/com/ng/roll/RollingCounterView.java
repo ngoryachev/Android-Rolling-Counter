@@ -3,6 +3,8 @@ package com.ng.roll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -18,14 +20,15 @@ class RollingCounterView extends View {
     private final Rect mBounds = new Rect();
     private float mDigitAspectRatio;
 
-    private double mValue = 0;
+    private double mValue = 0.0;
     private DigitFrame[] mDigitFrames = {};
     private ValueAnimator mRollingAnimator = null;
+    private Paint mFramePaint = new Paint();
 
     private ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
         public void onAnimationUpdate(ValueAnimator animation) {
             float value = (Float) animation.getAnimatedValue();
-            setCounterValueInternal(value);
+            setValueInternal(value);
         }
     };
 
@@ -48,6 +51,10 @@ class RollingCounterView extends View {
         TypedValue outValue = new TypedValue();
         getResources().getValue(R.dimen.rolling_digit_aspect_ratio, outValue, true);
         mDigitAspectRatio = outValue.getFloat();
+        int frameWidth = getResources().getDimensionPixelOffset(R.dimen.rolling_counter_frame_width);
+        mFramePaint.setStyle(Paint.Style.STROKE);
+        mFramePaint.setColor(Color.BLACK);
+        mFramePaint.setStrokeWidth(frameWidth);
     }
 
     public void setCounterValue(double value, boolean animate) {
@@ -58,7 +65,7 @@ class RollingCounterView extends View {
         if (animate) {
             startRollingAnimation(value);
         } else {
-            setCounterValueInternal(value);
+            setValueInternal(value);
         }
     }
 
@@ -70,7 +77,7 @@ class RollingCounterView extends View {
         return mDigitFrames != null ? mDigitFrames.length : 0;
     }
 
-    private void setCounterValueInternal(double value) {
+    private void setValueInternal(double value) {
         mValue = value;
         int digitsCount = getDigitsCount((int) value);
         for (int i = mDigitFrames.length - 1; i >= 0; i--) {
@@ -110,15 +117,16 @@ class RollingCounterView extends View {
                 w - getPaddingRight(),
                 h - getPaddingBottom());
 
-        Rect digitBounds = new Rect();
+        final Rect tempDigitBounds = new Rect();
 
         float digitWidth = getDigitWidthByHeight(mBounds.height(), mDigitAspectRatio);
         int digitCount = (int) (mBounds.width() / digitWidth);
+        int xOffset = (int) ((mBounds.width() - (digitWidth * digitCount)) * 0.5);
         mDigitFrames = new DigitFrame[digitCount];
 
         for (int i = 0; i < digitCount; i++) {
-            mDigitFrames[i] = new DigitFrame();
-            mDigitFrames[i].setBounds(computeNthDigitBounds(mBounds, digitBounds, digitWidth, i));
+            mDigitFrames[i] = new DigitFrame(getResources());
+            mDigitFrames[i].setBounds(computeNthDigitBounds(mBounds, tempDigitBounds, digitWidth, i, xOffset));
         }
 
         invalidate();
@@ -128,22 +136,21 @@ class RollingCounterView extends View {
         return height * aspectRatio;
     }
 
-    private static Rect computeNthDigitBounds(Rect bounds, Rect digitBounds, float w, int index) {
-        float left = bounds.left + (w * index);
+    private static Rect computeNthDigitBounds(Rect externalBounds, Rect digitBounds, float w, int index, int xOffset) {
+        float left = externalBounds.left + (w * index) + xOffset;
         float right = left + w;
-        digitBounds.set((int) left, bounds.top, (int) right, bounds.bottom);
+        digitBounds.set((int) left, externalBounds.top, (int) right, externalBounds.bottom);
 
         return digitBounds;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
         for (int i = 0; i < mDigitFrames.length; i++) {
             DigitFrame digit = mDigitFrames[i];
             digit.onDraw(canvas);
         }
+        canvas.drawRect(mBounds, mFramePaint);
     }
 
 
