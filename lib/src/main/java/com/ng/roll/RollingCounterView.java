@@ -196,11 +196,17 @@ public class RollingCounterView extends View {
         private void drawDigit(Canvas canvas) {
             PointF center = getRectCenter(mBounds);
             float fraction = (float) (currentCounterValue % 1);
+            fraction = slowRiseFunction(fraction);
             int wholePart = (int) (currentCounterValue % 10);
             float offsetTop = fraction * mBounds.height();
             float offsetBottom = (1 - fraction) * mBounds.height();
             drawIntTextAtPoint(canvas, wholePart, center.x, center.y - offsetTop);
             drawIntTextAtPoint(canvas, (wholePart + 1) % 10, center.x, center.y + offsetBottom);
+        }
+
+        private float slowRiseFunction(float x) {
+            float y = x * 7 - 6;
+            return Math.min(Math.max(y, 0), 1);
         }
 
         private void drawIntTextAtPoint(Canvas canvas, int intToDraw, float x, float y) {

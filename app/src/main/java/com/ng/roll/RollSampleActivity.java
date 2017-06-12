@@ -88,7 +88,7 @@ public class RollSampleActivity extends FragmentActivity {
 
     private void startAutoRoll(boolean forward) {
         autoRollDirection = forward;
-        rollingCounterView.postDelayed(autoRoll, 1000);
+        rollingCounterView.postDelayed(autoRoll, 100);
     }
 
 }
